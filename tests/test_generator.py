@@ -1,6 +1,15 @@
 import unittest
 from unittest.mock import patch
-from generator import parse_prompt, get_osm_tag, validate_tag, generate_query
+from generator import (
+    parse_prompt,
+    get_osm_tag,
+    validate_tag,
+    generate_query,
+    OsmTag,
+    ParsedPrompt,
+    GeographicFilter,
+    BoundingBox,
+)
 
 class TestGenerator(unittest.TestCase):
     def test_parse_prompt(self):
@@ -9,11 +18,19 @@ class TestGenerator(unittest.TestCase):
         """
         prompt = "Show me all bicycle parking in Paris."
         entities = parse_prompt(prompt)
-        self.assertEqual(entities, {"feature": "bicycle parking", "location": "Paris"})
+        expected = ParsedPrompt(
+            feature="bicycle parking",
+            geographic_filter=GeographicFilter(area_name="Paris", bounding_box=None),
+        )
+        self.assertEqual(entities, expected)
 
         prompt = "Find all cafes in Berlin with outdoor seating"
         entities = parse_prompt(prompt)
-        self.assertEqual(entities, {"feature": "cafes", "location": "Berlin"})
+        expected = ParsedPrompt(
+            feature="cafes",
+            geographic_filter=GeographicFilter(area_name="Berlin", bounding_box=None),
+        )
+        self.assertEqual(entities, expected)
 
     @patch('generator.google_web_search')
     def test_get_osm_tag(self, mock_google_web_search):
@@ -27,7 +44,7 @@ class TestGenerator(unittest.TestCase):
             ]
         }
         tag = get_osm_tag("cafe")
-        self.assertEqual(tag, ('amenity', 'cafe'))
+        self.assertEqual(tag, OsmTag(key='amenity', value='cafe'))
 
     @patch('generator.web_fetch')
     @patch('generator.google_web_search')
@@ -80,7 +97,7 @@ class TestGenerator(unittest.TestCase):
         Tests that validate_tag returns True for a valid tag.
         """
         mock_web_fetch.return_value = "<html><head><title>Tag:amenity=cafe - Taginfo</title></head><body></body></html>"
-        self.assertTrue(validate_tag(('amenity', 'cafe')))
+        self.assertTrue(validate_tag(OsmTag('amenity', 'cafe')))
 
     @patch('generator.web_fetch')
     def test_validate_tag_invalid(self, mock_web_fetch):
@@ -88,7 +105,7 @@ class TestGenerator(unittest.TestCase):
         Tests that validate_tag returns False for an invalid tag.
         """
         mock_web_fetch.return_value = "<html><head><title>Taginfo</title></head><body>tag not found</body></html>"
-        self.assertFalse(validate_tag(('amenity', 'invalid_tag')))
+        self.assertFalse(validate_tag(OsmTag('amenity', 'invalid_tag')))
 
     @patch('generator.web_fetch')
     @patch('generator.google_web_search')
