@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Ask a Question
+    url: https://github.com/overpass-ql-gen/discussions
+    about: Ask questions and discuss ideas with the community
+  - name: OpenStreetMap Wiki
+    url: https://wiki.openstreetmap.org/wiki/Overpass_API
+    about: Learn more about Overpass API and OSM data
