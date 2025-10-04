@@ -8,4 +8,14 @@ dependencies = [
     "mypy>=1.18.2",
     "pydantic>=2.11.9",
     "ruff>=0.13.3",
+    "requests>=2.31.0",
+    "streamlit>=1.28.0",
+    "pytest>=8.4.2",
+    "pandas>=2.3.3",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.2.2",
+    "pytest-cov>=5.0.0",
 ]
