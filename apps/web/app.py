@@ -312,14 +312,40 @@ if 'api_response' in st.session_state:
             import openai
             client = openai.OpenAI(api_key=api_key)
 
+            system_prompt = """You are an expert geospatial data analyst specializing in OpenStreetMap (OSM) and Overpass API query results.
+
+CONTEXT:
+- OpenStreetMap is a collaborative mapping project with crowdsourced geographic data
+- Overpass API is a read-only API that queries OSM data using Overpass QL query language
+- OSM data consists of three element types:
+  * Nodes: Point features with lat/lon coordinates (e.g., POIs, addresses)
+  * Ways: Ordered lists of nodes forming lines or polygons (e.g., roads, buildings)
+  * Relations: Complex features grouping nodes/ways (e.g., multipolygons, route relations)
+
+- OSM uses a tagging system with key=value pairs:
+  * amenity=cafe, shop=supermarket, highway=residential, building=house, etc.
+  * Tags describe real-world features and their attributes
+  * Common keys: name, addr:*, opening_hours, website, phone, etc.
+
+YOUR TASK:
+Analyze the provided Overpass API query results with a geospatial lens:
+1. Identify what real-world features are represented
+2. Assess spatial distribution patterns and density
+3. Evaluate data completeness and quality
+4. Highlight notable or unusual features
+5. Suggest practical applications based on the data characteristics
+
+Provide specific, actionable insights referencing actual feature names and attributes from the data.
+Use geographic terminology appropriately (e.g., clusters, corridors, density, distribution)."""
+
             response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model="gpt-4o-mini",
                 messages=[
-                    {"role": "system", "content": "You are an expert in analyzing OpenStreetMap data. Provide a clear, concise summary of the OSM elements with focus on the most interesting insights about the geographic features."},
+                    {"role": "system", "content": system_prompt},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=1000,
-                temperature=0.5
+                max_tokens=3000,
+                temperature=0.7
             )
 
             return response.choices[0].message.content
@@ -335,10 +361,45 @@ if 'api_response' in st.session_state:
         try:
             import google.generativeai as genai
 
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel('gemini-1.5-flash')
+            system_prompt = """You are an expert geospatial data analyst specializing in OpenStreetMap (OSM) and Overpass API query results.
 
-            response = model.generate_content(prompt)
+CONTEXT:
+- OpenStreetMap is a collaborative mapping project with crowdsourced geographic data
+- Overpass API is a read-only API that queries OSM data using Overpass QL query language
+- OSM data consists of three element types:
+  * Nodes: Point features with lat/lon coordinates (e.g., POIs, addresses)
+  * Ways: Ordered lists of nodes forming lines or polygons (e.g., roads, buildings)
+  * Relations: Complex features grouping nodes/ways (e.g., multipolygons, route relations)
+
+- OSM uses a tagging system with key=value pairs:
+  * amenity=cafe, shop=supermarket, highway=residential, building=house, etc.
+  * Tags describe real-world features and their attributes
+  * Common keys: name, addr:*, opening_hours, website, phone, etc.
+
+YOUR TASK:
+Analyze the provided Overpass API query results with a geospatial lens:
+1. Identify what real-world features are represented
+2. Assess spatial distribution patterns and density
+3. Evaluate data completeness and quality
+4. Highlight notable or unusual features
+5. Suggest practical applications based on the data characteristics
+
+Provide specific, actionable insights referencing actual feature names and attributes from the data.
+Use geographic terminology appropriately (e.g., clusters, corridors, density, distribution)."""
+
+            genai.configure(api_key=api_key)
+            model = genai.GenerativeModel(
+                'gemini-1.5-pro',
+                system_instruction=system_prompt
+            )
+
+            response = model.generate_content(
+                prompt,
+                generation_config={
+                    'max_output_tokens': 3000,
+                    'temperature': 0.7,
+                }
+            )
             return response.text
         except Exception as e:
             st.error(f"Error calling Gemini API: {e}")
@@ -354,11 +415,37 @@ if 'api_response' in st.session_state:
 
             client = anthropic.Anthropic(api_key=api_key)
 
+            system_prompt = """You are an expert geospatial data analyst specializing in OpenStreetMap (OSM) and Overpass API query results.
+
+CONTEXT:
+- OpenStreetMap is a collaborative mapping project with crowdsourced geographic data
+- Overpass API is a read-only API that queries OSM data using Overpass QL query language
+- OSM data consists of three element types:
+  * Nodes: Point features with lat/lon coordinates (e.g., POIs, addresses)
+  * Ways: Ordered lists of nodes forming lines or polygons (e.g., roads, buildings)
+  * Relations: Complex features grouping nodes/ways (e.g., multipolygons, route relations)
+
+- OSM uses a tagging system with key=value pairs:
+  * amenity=cafe, shop=supermarket, highway=residential, building=house, etc.
+  * Tags describe real-world features and their attributes
+  * Common keys: name, addr:*, opening_hours, website, phone, etc.
+
+YOUR TASK:
+Analyze the provided Overpass API query results with a geospatial lens:
+1. Identify what real-world features are represented
+2. Assess spatial distribution patterns and density
+3. Evaluate data completeness and quality
+4. Highlight notable or unusual features
+5. Suggest practical applications based on the data characteristics
+
+Provide specific, actionable insights referencing actual feature names and attributes from the data.
+Use geographic terminology appropriately (e.g., clusters, corridors, density, distribution)."""
+
             response = client.messages.create(
-                model="claude-3-haiku-20240307",
-                max_tokens=1000,
-                temperature=0.5,
-                system="You are an expert in analyzing OpenStreetMap data. Provide a clear, concise summary of the OSM elements with focus on the most interesting insights about the geographic features.",
+                model="claude-3-5-sonnet-20241022",
+                max_tokens=3000,
+                temperature=0.7,
+                system=system_prompt,
                 messages=[
                     {"role": "user", "content": prompt}
                 ]
@@ -376,18 +463,18 @@ if 'api_response' in st.session_state:
         Generate an AI summary of the Overpass API response using selected service
         """
         elements = response_data.get('elements', [])
-        
+
         if not elements:
             return "No elements found in the response."
-        
+
         # Prepare basic statistics for use in both basic and AI summaries
         total_elements = len(elements)
-        
+
         # Count element types
         node_count = sum(1 for elem in elements if elem.get('type') == 'node')
         way_count = sum(1 for elem in elements if elem.get('type') == 'way')
         relation_count = sum(1 for elem in elements if elem.get('type') == 'relation')
-        
+
         # Get common tags
         tag_counts = {}
         for elem in elements:
@@ -395,14 +482,34 @@ if 'api_response' in st.session_state:
             for key, value in tags.items():
                 tag_key = f"{key}={value}"
                 tag_counts[tag_key] = tag_counts.get(tag_key, 0) + 1
-        
+
         # Get top tags
         sorted_tags = sorted(tag_counts.items(), key=lambda x: x[1], reverse=True)[:10]
         top_tags_str = ", ".join([f"{tag} ({count})" for tag, count in sorted_tags])
-        
+
         # Get the search area
         search_area = st.session_state.get('query_result', {}).search_area or 'unknown location'
-        
+
+        # Extract geographic context (bounding box, coordinate ranges)
+        geo_context = ""
+        lats = [elem.get('lat') for elem in elements if elem.get('lat')]
+        lons = [elem.get('lon') for elem in elements if elem.get('lon')]
+
+        if lats and lons:
+            min_lat, max_lat = min(lats), max(lats)
+            min_lon, max_lon = min(lons), max(lons)
+            lat_range = max_lat - min_lat
+            lon_range = max_lon - min_lon
+            geo_context = f"\n- Geographic Span: {lat_range:.4f}° latitude x {lon_range:.4f}° longitude"
+            geo_context += f"\n- Bounding Box: ({min_lat:.4f}, {min_lon:.4f}) to ({max_lat:.4f}, {max_lon:.4f})"
+
+        # Extract sample element names for context
+        sample_names = []
+        for elem in elements[:20]:
+            if elem.get('tags', {}).get('name'):
+                sample_names.append(elem['tags']['name'])
+        sample_names_str = ", ".join(sample_names[:10]) if sample_names else "No named features"
+
         # If using basic summary, return the local analysis
         if service_type == "basic":
             summary = f"""
@@ -414,26 +521,42 @@ if 'api_response' in st.session_state:
 
 ### Breakdown by Type:
 - Nodes: {node_count}
-- Ways: {way_count} 
+- Ways: {way_count}
 - Relations: {relation_count}
+
+### Geographic Context:
+{geo_context if geo_context else "No coordinate data available"}
 
 ### Common Features:
 {top_tags_str}
 
+### Sample Named Features:
+{sample_names_str}
+
 ### Analysis:
-This OSM query returned {total_elements} elements in {search_area}. 
+This OSM query returned {total_elements} elements in {search_area}.
 The most common features in this dataset are represented by the tags: {top_tags_str.split(',')[0] if top_tags_str else 'no specific tags'}.
 The data includes {node_count} point features, {way_count} line/polygon features, and {relation_count} complex features.
 """
             return summary.strip()
-        
-        # For AI services, create a detailed prompt
+
+        # For AI services, create a detailed prompt with sample elements
         else:
-            prompt = f"""
-Analyze this OpenStreetMap query result and provide a comprehensive summary.
+            # Get sample elements with full details - adjust based on detail level
+            sample_size = min(15, total_elements)
+            if summary_detail_level >= 4:
+                sample_size = min(25, total_elements)
+            elif summary_detail_level <= 2:
+                sample_size = min(10, total_elements)
+
+            sample_elements = elements[:sample_size]
+            sample_json = json.dumps(sample_elements, indent=2)
+
+            # Build comprehensive prompt with actual data
+            base_prompt = f"""Analyze this OpenStreetMap query result and provide a comprehensive, insightful summary.
 
 Query Information:
-- Search Query: {query_info or 'OSM Query Results'}
+- Original Query: {query_info or 'OSM Query Results'}
 - Location: {search_area}
 - Total Elements: {total_elements}
 
@@ -441,34 +564,62 @@ Data Overview:
 - Nodes (points): {node_count}
 - Ways (lines/polygons): {way_count}
 - Relations (complex features): {relation_count}
+{geo_context}
 
-Common Tags: {top_tags_str}
+Top 10 Most Common Tags: {top_tags_str}
 
-Please provide:
-1. A high-level summary of what type of features were found
-2. The geographic distribution and density of features
-3. Any interesting patterns or insights about the data
-4. Recommendations for potential uses of this data
+Sample Named Features: {sample_names_str}
 
-Keep the response concise but informative.
+ACTUAL DATA SAMPLE ({sample_size} elements):
+{sample_json}
+
 """
-            
+            # Add analysis instructions based on detail level and advanced analysis setting
+            if enable_advanced_analysis:
+                base_prompt += """Please provide a DETAILED analysis including:
+
+1. **Feature Type Summary**: What specific types of geographic features are present (e.g., restaurants, parks, roads)?
+2. **Spatial Patterns**: Analyze the geographic distribution - are features clustered or dispersed? Any notable patterns?
+3. **Data Quality**: Assess completeness of names, addresses, and other attributes
+4. **Notable Features**: Highlight 3-5 interesting or unique features from the sample data
+5. **Tag Analysis**: What do the OSM tags reveal about the characteristics of these features?
+6. **Use Cases**: Suggest 3-4 specific practical applications for this dataset
+7. **Data Insights**: Any unusual patterns, missing data, or areas for improvement?
+
+Provide specific examples from the actual data sample when making observations.
+"""
+            else:
+                base_prompt += """Please provide:
+
+1. **Summary**: What type of features were found? Reference specific examples from the data.
+2. **Geographic Distribution**: Analyze the spatial spread and density based on coordinates
+3. **Key Insights**: 2-3 interesting patterns or notable features from the actual data
+4. **Potential Uses**: Practical applications for this dataset
+
+Be specific and reference actual feature names or characteristics from the sample data.
+"""
+
+            if summary_detail_level >= 4:
+                base_prompt += "\n\nProvide a COMPREHENSIVE and DETAILED analysis with rich insights."
+            elif summary_detail_level <= 2:
+                base_prompt += "\n\nProvide a CONCISE summary focused on the most important insights."
+
             # Call the appropriate API based on service type
             if service_type == "openai" and api_key:
-                result = call_openai_api(api_key, prompt)
+                result = call_openai_api(api_key, base_prompt)
                 if result:
                     return f"## OpenAI-Generated Summary\n\n{result}"
-                
+
             elif service_type == "gemini" and api_key:
-                result = call_gemini_api(api_key, prompt)
+                result = call_gemini_api(api_key, base_prompt)
                 if result:
                     return f"## Gemini-Generated Summary\n\n{result}"
-                
+
             elif service_type == "claude" and api_key:
-                result = call_claude_api(api_key, prompt)
+                result = call_claude_api(api_key, base_prompt)
                 if result:
                     return f"## Claude-Generated Summary\n\n{result}"
-            
+
             # If API call failed, fall back to basic summary
             st.warning(f"AI service request failed. Using basic summary instead.")
             summary = f"""
@@ -480,14 +631,20 @@ Keep the response concise but informative.
 
 ### Breakdown by Type:
 - Nodes: {node_count}
-- Ways: {way_count} 
+- Ways: {way_count}
 - Relations: {relation_count}
+
+### Geographic Context:
+{geo_context if geo_context else "No coordinate data available"}
 
 ### Common Features:
 {top_tags_str}
 
+### Sample Named Features:
+{sample_names_str}
+
 ### Analysis:
-This OSM query returned {total_elements} elements in {search_area}. 
+This OSM query returned {total_elements} elements in {search_area}.
 The most common features in this dataset are represented by the tags: {top_tags_str.split(',')[0] if top_tags_str else 'no specific tags'}.
 The data includes {node_count} point features, {way_count} line/polygon features, and {relation_count} complex features.
 """
