@@ -201,16 +201,25 @@ Click **"View Raw JSON Response"** to expand and see the complete API response.
 
 In the **left sidebar**, you can configure AI analysis:
 
+> **💡 Helper:** AI services provide intelligent summaries of your query results, identifying patterns, insights, and recommendations. The Basic Summary works without any setup!
+
 1. **Select AI Service** from the dropdown:
-   - **Basic Summary (No API Key)**: Uses built-in statistical analysis
-   - **OpenAI GPT**: Requires OpenAI API key
-   - **Google Gemini**: Requires Google Gemini API key
-   - **Anthropic Claude**: Requires Anthropic Claude API key
+   - **Basic Summary (No API Key)**: Uses built-in statistical analysis - works offline, no cost
+   - **OpenAI GPT**: Requires OpenAI API key - uses GPT-3.5-turbo model
+   - **Google Gemini**: Requires Google Gemini API key - uses Gemini 1.5 Flash model
+   - **Anthropic Claude**: Requires Anthropic Claude API key - uses Claude 3 Haiku model
+
+> **💡 Helper:** Need an API key?
+> - **OpenAI**: Get one at https://platform.openai.com/api-keys
+> - **Google Gemini**: Get one at https://aistudio.google.com/app/apikey
+> - **Anthropic Claude**: Get one at https://console.anthropic.com/
 
 2. If you selected an AI service (not Basic Summary):
    - Enter your API key in the password field that appears
    - Your key is stored in memory only during the session
    - It's never saved to disk
+
+> **🔒 Security:** API keys are only sent to the respective AI provider (OpenAI, Google, or Anthropic). They are never stored permanently or shared with third parties.
 
 ### Step 10: Generate AI Summary
 
@@ -218,7 +227,14 @@ After executing a query:
 
 1. Scroll down to the **"AI-Powered Summary"** section
 2. Click the **"Generate AI Summary"** button
+
+> **💡 Helper:** You must execute a query first (Step 7) before you can generate a summary. The summary analyzes the actual results returned by the API.
+
 3. Wait for the analysis to complete
+
+> **💡 Helper:** Analysis time varies:
+> - Basic Summary: Instant (< 1 second)
+> - AI Services: 5-15 seconds depending on the service and response size
 
 ### Step 11: Review AI Summary
 
@@ -271,9 +287,13 @@ In the **sidebar under "Settings"**:
    - Level 3: Balanced detail (default)
    - Level 5: Comprehensive analysis
 
+> **💡 Helper:** Currently this setting is for future use. All summaries use a balanced detail level regardless of the slider position.
+
 2. **Enable Advanced Analysis** (checkbox):
    - Check to enable more sophisticated data analysis
    - Useful for complex datasets
+
+> **💡 Helper:** This setting is for future use and doesn't affect current summaries. Leave it unchecked for now.
 
 ---
 
@@ -282,7 +302,12 @@ In the **sidebar under "Settings"**:
 ### Step 13: Download Query
 
 1. Click **"📋 Copy Query"** to copy the Overpass QL query to your clipboard
+
+> **💡 Helper:** The query is automatically copied. Look for the confirmation message "Query copied to clipboard!" Your browser might request clipboard permissions the first time.
+
 2. Paste it into the [Overpass Turbo](https://overpass-turbo.eu/) web interface or your own application
+
+> **💡 Helper:** Overpass Turbo is a web-based tool where you can run queries and visualize results on a map. Perfect for testing and refinement!
 
 ### Step 14: Download JSON Response
 
@@ -292,6 +317,11 @@ After executing a query:
 2. Click it to download the complete API response
 3. File saved as: `overpass_response.json`
 
+> **💡 Helper:** The downloaded JSON file can be:
+> - Imported into GIS software (QGIS, ArcGIS)
+> - Processed with Python, JavaScript, or other programming languages
+> - Used for data analysis in tools like Excel or Google Sheets (with conversion)
+
 ### Step 15: Download AI Summary
 
 After generating an AI summary:
@@ -300,11 +330,18 @@ After generating an AI summary:
 2. Click it to download the summary text
 3. File saved as: `overpass_summary.txt`
 
+> **💡 Helper:** The summary is in plain text format with markdown formatting. You can:
+> - Open it in any text editor
+> - View it as formatted markdown in VS Code, GitHub, or markdown viewers
+> - Include it in reports or documentation
+
 ---
 
 ## Complete Workflow Example
 
 ### Example: Finding Restaurants in London
+
+> **💡 Helper:** This example walks through the entire process from start to finish. Follow along to see how all the features work together.
 
 **Step 1:** Launch the application
 ```bash
@@ -315,33 +352,48 @@ uv run streamlit run apps/web/app.py
 ```
 Find all restaurants in London
 ```
+> **💡 Helper:** Notice how the query auto-generates after you stop typing for a moment.
 
 **Step 3:** Select format
 - Choose **GeoJSON** from the dropdown
 
+> **💡 Helper:** GeoJSON is perfect if you plan to visualize the results on a map later.
+
 **Step 4:** Review generated query
 - Check the query details showing `amenity=restaurant` and search area `London`
+
+> **💡 Helper:** Verify that the tool correctly identified "restaurants" → `amenity=restaurant` and "London" as the search area.
 
 **Step 5:** Execute the query
 - Click **"▶️ Execute Query"**
 - Wait for results (may take 10-30 seconds)
 
+> **💡 Helper:** London has many restaurants, so this query might return 1000+ results and take up to 60 seconds.
+
 **Step 6:** Analyze results
 - View the element preview table
 - Expand the raw JSON response to see all data
+
+> **💡 Helper:** The preview shows only 5 elements. Download the full JSON to see all results.
 
 **Step 7:** Configure AI (optional)
 - Select **"OpenAI GPT"** in the sidebar
 - Enter your API key
 
+> **💡 Helper:** Skip this if you don't have an API key - the Basic Summary works great too!
+
 **Step 8:** Generate summary
 - Click **"Generate AI Summary"**
 - Review the AI-generated insights
+
+> **💡 Helper:** The AI might identify patterns like "Most restaurants are concentrated in the city center" or "Italian cuisine is most common".
 
 **Step 9:** Download everything
 - Download the query
 - Download the JSON response
 - Download the AI summary
+
+> **💡 Helper:** Now you have everything saved locally for further analysis, reporting, or mapping!
 
 ---
 
@@ -351,9 +403,16 @@ Find all restaurants in London
 - **Issue**: "Please enter at least 5 characters"
 - **Solution**: Type a longer query with more descriptive text
 
+> **💡 Helper:** The minimum is 5 characters to ensure meaningful queries. Try "Find cafes in Paris" instead of "cafe".
+
 ### Query Execution Timeout
 - **Issue**: "Request timed out"
 - **Solution**: The query is too complex. Try narrowing the geographic area or using more specific tags
+
+> **💡 Helper:** Common causes:
+> - Searching entire countries (try cities instead)
+> - Very generic features (try specific tags like "restaurants" not "food")
+> - Server is overloaded (wait and try again)
 
 ### AI Summary Fails
 - **Issue**: "Error calling [Service] API"
@@ -362,6 +421,11 @@ Find all restaurants in London
   - Verify you have API credits
   - Try the "Basic Summary" option instead
 
+> **💡 Helper:** Test your API key:
+> - **OpenAI**: Visit https://platform.openai.com/usage to check credits
+> - **Gemini**: Ensure you have quota at https://aistudio.google.com/
+> - **Claude**: Check your usage at https://console.anthropic.com/
+
 ### No Elements Returned
 - **Issue**: "0 elements returned"
 - **Solution**:
@@ -369,33 +433,145 @@ Find all restaurants in London
   - Try a different location or feature type
   - Check the generated query for accuracy
 
+> **💡 Helper:** Common reasons for zero results:
+> - Location name misspelled or doesn't exist in OSM
+> - Feature doesn't exist in that area (e.g., "ski resorts in Miami")
+> - OSM data is incomplete for that region
+> - Try viewing the query in [Overpass Turbo](https://overpass-turbo.eu/) to verify
+
+### App Won't Start
+- **Issue**: Application fails to launch or shows errors
+- **Solution**:
+  - Ensure all dependencies are installed: `uv sync`
+  - Check Python version is 3.12 or higher: `python --version`
+  - Try clearing Streamlit cache: `streamlit cache clear`
+
+> **💡 Helper:** If you see "ModuleNotFoundError", run `uv sync` to install missing dependencies.
+
 ---
 
 ## Tips and Best Practices
 
 1. **Start Simple**: Begin with basic queries like "Find cafes in Paris" before attempting complex queries
+
+> **💡 Helper:** Simple queries help you understand the tool's behavior and the structure of OSM data before tackling complex searches.
+
 2. **Use Examples**: The pre-built examples demonstrate the query syntax and expected inputs
+
+> **💡 Helper:** Click through all the examples to see different query styles and learn what kinds of searches work well.
+
 3. **Check Query Details**: Always review the query details to ensure correct tags and location
+
+> **💡 Helper:** The tool shows what OSM tags it chose. If it picked the wrong tag (e.g., `shop=bakery` when you wanted `craft=bakery`), you can manually edit the query.
+
 4. **Experiment with Formats**: Try different output formats (JSON, XML, GeoJSON) for different use cases
+
+> **💡 Helper:** Format recommendations:
+> - **JSON**: Best for APIs, web applications, data processing
+> - **XML**: Required by some legacy systems and tools
+> - **GeoJSON**: Essential for web maps (Leaflet, Mapbox, OpenLayers)
+
 5. **Save Your Work**: Download responses and summaries for offline analysis
+
+> **💡 Helper:** Download files immediately after execution. Session state is cleared when you close the browser or refresh the page.
+
 6. **API Key Security**: Never share your API keys or commit them to version control
+
+> **💡 Helper:** Best practices:
+> - Don't screenshot the sidebar with API keys visible
+> - Don't paste API keys in chat, email, or public forums
+> - Rotate keys regularly if they might be compromised
+
 7. **Rate Limiting**: The Overpass API has rate limits. Wait between consecutive queries
+
+> **💡 Helper:** Overpass API limits:
+> - Maximum 2 concurrent queries
+> - Complex queries may have cooldown periods
+> - If you hit limits, wait 60-120 seconds before retrying
+
 8. **Geographic Specificity**: More specific locations (e.g., "Berlin" vs "Germany") return faster results
+
+> **💡 Helper:** Query performance hierarchy (fastest to slowest):
+> - Neighborhoods: "Find cafes in Kreuzberg, Berlin" (fastest)
+> - Cities: "Find cafes in Berlin" (fast)
+> - Regions: "Find cafes in Brandenburg" (slow)
+> - Countries: "Find cafes in Germany" (very slow, may timeout)
 
 ---
 
 ## Additional Resources
 
 - **Overpass QL Documentation**: https://wiki.openstreetmap.org/wiki/Overpass_API
+  > **💡 Helper:** Comprehensive guide to Overpass QL syntax, filters, and advanced features
+
 - **Overpass Turbo**: https://overpass-turbo.eu/ (interactive query builder)
+  > **💡 Helper:** Web-based IDE for writing and testing Overpass queries with live map visualization
+
 - **OSM Taginfo**: https://taginfo.openstreetmap.org/ (explore OSM tags)
+  > **💡 Helper:** Search for OSM tags to understand their usage frequency and find the right tags for your queries
+
 - **Project Repository**: Check the README for installation and configuration details
+  > **💡 Helper:** Full documentation, contribution guidelines, and source code
+
+- **OSM Wiki**: https://wiki.openstreetmap.org/
+  > **💡 Helper:** Learn about OSM tagging conventions, map features, and best practices
+
+---
+
+## Quick Reference Card
+
+### Common Query Patterns
+```
+Find all [FEATURE] in [LOCATION]
+Show me [FEATURE] in [LOCATION]
+Get [FEATURE] from [LOCATION]
+List all [FEATURE] in [LOCATION]
+```
+
+### Supported Features (Examples)
+- Amenities: cafes, restaurants, banks, hospitals, schools, libraries
+- Tourism: hotels, museums, attractions, viewpoints
+- Transport: bus stops, train stations, bicycle parking, parking lots
+- Natural features: parks, forests, water bodies, beaches
+
+### Supported Locations
+- Cities: "Paris", "New York", "Tokyo"
+- Countries: "France", "USA", "Japan"
+- Regions: "Bavaria", "California", "Île-de-France"
+- Neighborhoods: "Manhattan", "Shibuya"
+
+### Keyboard Shortcuts
+- **Ctrl+Enter** (in input field): Trigger query generation
+- **Ctrl+C**: Copy selected query text
+- **F5**: Refresh the page (clears session state)
 
 ---
 
 ## Next Steps
 
 After mastering the web interface:
-- Try the [CLI tool](../README.md#command-line-interface) for scripting and automation
-- Explore the [codebase](../README.md#project-structure) to understand how queries are generated
-- Contribute improvements via the [contribution guidelines](../CONTRIBUTING.md)
+
+1. **Try the CLI Tool**: Use the [command-line interface](../README.md#command-line-interface) for scripting and automation
+
+> **💡 Helper:** The CLI is perfect for batch processing multiple queries or integrating with other tools and scripts.
+
+2. **Explore the Codebase**: Understand the [project structure](../README.md#project-structure) and how queries are generated
+
+> **💡 Helper:** Learn how the natural language processing works and how you can customize or extend the tool.
+
+3. **Contribute**: Share improvements via the [contribution guidelines](../CONTRIBUTING.md)
+
+> **💡 Helper:** Found a bug? Have an idea for a feature? Contributions are welcome! Check the guidelines to get started.
+
+4. **Join the Community**: Connect with other OpenStreetMap and Overpass API users
+
+> **💡 Helper:** Resources:
+> - OSM Community Forum: https://community.openstreetmap.org/
+> - OSM Help Site: https://help.openstreetmap.org/
+> - Overpass API Mailing List: https://listes.openstreetmap.fr/wws/info/overpass
+
+---
+
+**Happy Mapping! 🗺️**
+
+> **💡 Final Helper:** Remember, OpenStreetMap is built by volunteers. If you find missing or incorrect data, consider [contributing to OSM](https://www.openstreetmap.org/fixthemap) to help improve the map for everyone!
