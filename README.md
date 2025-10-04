@@ -4,16 +4,39 @@ A Python-based Overpass QL generator that translates user prompts in natural Eng
 
 ## Features
 
-*   **Natural Language Input:** The tool accepts prompts like "Find all cafes in Berlin".
-*   **Geographic Filtering:** It supports both named areas (e.g., "in Berlin") and bounding boxes (e.g., "in bbox 48.85,2.34,48.86,2.35").
-*   **OSM Tag Grounding:** It uses web search to find the appropriate OSM tag for a given feature (e.g., "cafes" -> `amenity=cafe`).
-*   **Tag Validation:** It validates the found tag against the OSM taginfo database to ensure it's a valid tag.
-*   **Customizable Output Format:** The user can specify the output format (JSON, XML, or GeoJSON) using the `--format` flag.
-*   **Formatted Output:** The generated query is well-formatted and includes comments to explain the different parts of the query.
-*   **User Confirmation:** The CLI asks the user for confirmation before proceeding, providing a basic form of semantic validation.
-*   **Multiple Interfaces:** Offers both a command-line interface and a web application (Streamlit)
+### Core Functionality
+*   **Natural Language to Overpass QL:** Translates plain English prompts into executable Overpass QL queries
+*   **Geographic Filtering:** Supports named areas ("in Berlin") and bounding boxes ("in bbox 48.85,2.34,48.86,2.35")
+*   **OSM Tag Grounding:** Automatically finds appropriate OSM tags for features (e.g., "cafes" → `amenity=cafe`)
+*   **Tag Validation:** Validates tags against the OSM taginfo database
+*   **Multiple Output Formats:** JSON, XML, and GeoJSON support
+
+### Query Generation & Execution
+*   **Auto-generated Queries:** Real-time query generation as you type
+*   **Formatted Output:** Well-structured queries with explanatory comments
+*   **Direct API Execution:** Execute queries against Overpass API directly from the web interface
+*   **Response Visualization:** Preview and analyze returned OSM data
+*   **Copy to Clipboard:** One-click query copying for external use
+*   **Download Responses:** Save JSON responses locally
+
+### AI-Powered Analysis
+*   **Multi-Provider AI Summaries:** Support for OpenAI GPT, Google Gemini, and Anthropic Claude
+*   **Basic Summary Mode:** Built-in statistical analysis without API keys
+*   **Response Analysis:** Automatic analysis of OSM query results with insights
+*   **Configurable Detail Levels:** Adjustable summary depth and advanced analysis options
+*   **Downloadable Summaries:** Export AI-generated summaries as text files
+
+### User Interfaces
+*   **Command-Line Interface:** Lightweight CLI for terminal-based workflows
+*   **Web Application:** Full-featured Streamlit interface with visual feedback
+*   **Example Queries:** Pre-built examples for quick testing
+*   **Interactive UI:** Real-time validation and auto-generation
+
+### Development & Quality
 *   **Type Safety:** Built with Pydantic models for runtime validation and mypy for static type checking
-*   **Comprehensive Validation:** Includes validation for OSM tags, geographic filters, and query syntax
+*   **Comprehensive Validation:** OSM tags, geographic filters, and query syntax validation
+*   **Functional Testing:** Automated testing framework for query validation
+*   **Test Coverage:** pytest-based test suite with coverage reporting
 
 ## Installation
 
